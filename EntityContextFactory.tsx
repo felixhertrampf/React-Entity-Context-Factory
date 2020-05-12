@@ -9,7 +9,7 @@ export default abstract class Entity {
 }
 
 export enum CUDReducerActions {
-    ADD,
+    CREATE,
     UPDATE,
     DELETE
 }
@@ -41,7 +41,7 @@ export class EntityContextFactory<T extends Entity> extends Component {
 
     reducer = (state: EntityState<T>, action: EntityAction<T>) => {
         switch (action.action) {
-            case CUDReducerActions.ADD:
+            case CUDReducerActions.CREATE:
                 state.entities = [...state.entities, action.entity];
                 break;
             case CUDReducerActions.DELETE:
