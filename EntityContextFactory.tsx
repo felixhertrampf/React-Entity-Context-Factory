@@ -7,7 +7,6 @@ export enum CUDReducerActions {
     DELETE = "DELETE"
 }
 
-
 export enum RestReducerActions {
     REFRESH = "REFRESH"
 }
@@ -39,8 +38,7 @@ export default class EntityContextFactory<T extends Entity> extends Component {
         this.entityDispatchContext = createContext<EntityDispatch<T>>({dispatch: () => null});
     }
 
-    entityReducer = (state: EntityState<T>, action: Action<T>) => {
-        console.log("reducer action", action.action);
+    entityReducer = (state: EntityState<T>, action: Action<T>): EntityState<T> => {
         switch (action.action) {
             case CUDReducerActions.CREATE:
                 state.entities = [...state.entities, action.payload];
@@ -54,36 +52,23 @@ export default class EntityContextFactory<T extends Entity> extends Component {
 
             case RestReducerActions.REFRESH:
                 state.entities = action.payload;
-                console.log("reducer", state.entities);
                 return state;
         }
     };
 
-
     createAll = (): [Context<EntityState<T>>, Context<EntityDispatch<T>>, (props: { children: any }) => JSX.Element] => {
-        return [this.createEntityStateContext(), this.createEntityDispatchContext(), this.createEntityContextProvider()]
+        return [this.entityStateContext, this.entityDispatchContext, this.createEntityContextProvider]
     };
 
-    createEntityStateContext = () => {
-        return this.entityStateContext;
-    };
-
-    createEntityDispatchContext = () => {
-        return this.entityDispatchContext;
-    };
-
-    createEntityContextProvider = () => {
+    createEntityContextProvider = (props: { children: any }) => {
+        const [entityState, entityDispatch] = useReducer(this.entityReducer, {entities: []});
         return (
-            (props: { children: any }) => {
-                const [entityState, entityDispatch] = useReducer(this.entityReducer, {entities: []});
-                return (
-                    <this.entityStateContext.Provider value={entityState}>
-                        <this.entityDispatchContext.Provider value={{dispatch: entityDispatch}}>
-                            {props.children}
-                        </this.entityDispatchContext.Provider>
-                    </this.entityStateContext.Provider>
-                )
-            }
+            <this.entityStateContext.Provider value={entityState}>
+                <this.entityDispatchContext.Provider value={{dispatch: entityDispatch}}>
+                    {props.children}
+                </this.entityDispatchContext.Provider>
+            </this.entityStateContext.Provider>
         )
     }
 }
+
