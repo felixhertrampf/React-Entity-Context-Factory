@@ -39,6 +39,7 @@ export default class EntityContextFactory<T extends Entity> extends Component {
     }
 
     entityReducer = (state: EntityState<T>, action: Action<T>): EntityState<T> => {
+        console.log("reducer action: ", action.action);
         switch (action.action) {
             case CUDReducerActions.CREATE:
                 state.entities = [...state.entities, action.payload];
@@ -52,15 +53,16 @@ export default class EntityContextFactory<T extends Entity> extends Component {
 
             case RestReducerActions.REFRESH:
                 state.entities = action.payload;
+                console.log("reducer action: refresh => ", state.entities);
                 return state;
         }
     };
 
     createAll = (): [Context<EntityState<T>>, Context<EntityDispatch<T>>, (props: { children: any }) => JSX.Element] => {
-        return [this.entityStateContext, this.entityDispatchContext, this.createEntityContextProvider]
+        return [this.entityStateContext, this.entityDispatchContext, this.entityContextProvider]
     };
 
-    createEntityContextProvider = (props: { children: any }) => {
+    entityContextProvider = (props: { children: any }) => {
         const [entityState, entityDispatch] = useReducer(this.entityReducer, {entities: []});
         return (
             <this.entityStateContext.Provider value={entityState}>
@@ -71,4 +73,3 @@ export default class EntityContextFactory<T extends Entity> extends Component {
         )
     }
 }
-
