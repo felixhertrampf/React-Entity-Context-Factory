@@ -28,6 +28,7 @@ export interface EntityDispatch<T> {
     dispatch: Dispatch<Action<T>>
 }
 
+
 export default class EntityContextFactory<T extends Entity> extends Component {
     private readonly entityStateContext: Context<EntityState<T>>;
     private readonly entityDispatchContext: Context<EntityDispatch<T>>;
@@ -41,18 +42,14 @@ export default class EntityContextFactory<T extends Entity> extends Component {
     entityReducer = (state: EntityState<T>, action: Action<T>): EntityState<T> => {
         switch (action.action) {
             case CUDReducerActions.CREATE:
-                state.entities = [...state.entities, action.payload];
-                return state;
+                return {entities: [...state.entities, action.payload]};
             case CUDReducerActions.DELETE:
-                state.entities = state.entities.filter(value => value.id !== action.payload.id);
-                return state;
+                return {entities: state.entities.filter(value => value.id !== action.payload.id)};
             case CUDReducerActions.UPDATE:
-                state.entities = state.entities.map(value => value.id === action.payload.id ? action.payload : value);
-                return state;
+                return {entities: state.entities.map(value => value.id === action.payload.id ? action.payload : value)};
 
             case RestReducerActions.REFRESH:
-                state.entities = action.payload;
-                return state;
+                return {entities: action.payload};
         }
     };
 
